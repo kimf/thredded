@@ -15,15 +15,6 @@ PASS='thredded'
 set -e
 log() { if [ -t 1 ]; then echo -e >&2 "${GREEN}create-db-users: $@${RESET_COLOR}"; else echo >&2 "$@"; fi }
 
-create_mysql_user() {
-  if mysql -s -u"$USER" -p"$PASS" -e '' 2>/dev/null; then return; fi
-  log "Creating MySQL '$USER' user. MySQL root password required."
-  mysql --verbose -uroot -p <<SQL
-GRANT ALL PRIVILEGES ON \`thredded_gem_dev\`.* TO '$USER'@'localhost' IDENTIFIED BY '$PASS';
-GRANT ALL PRIVILEGES ON \`thredded_gem_test\`.* TO '$USER'@'localhost';
-SQL
-}
-
 create_postgresql_user() {
   if PGPASSWORD="$PASS" psql -h 127.0.0.1 postgres -U $USER -c ''; then return; fi
   log "Creating Postgres '$USER' user."
@@ -38,5 +29,4 @@ ALTER ROLE $USER CREATEDB;
 SQL
 }
 
-[ -z "$DB" -o "$DB" = 'mysql2' ] && create_mysql_user
 [ -z "$DB" -o "$DB" = 'postgresql' ] && create_postgresql_user
