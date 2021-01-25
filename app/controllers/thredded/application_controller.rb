@@ -3,6 +3,7 @@
 module Thredded
   class ApplicationController < ::ApplicationController # rubocop:disable Metrics/ClassLength
     layout :thredded_layout
+    before_action :import_main_app_polymorphic_mappings
     include ::Thredded::UrlsHelper
     include Pundit
 
@@ -49,6 +50,10 @@ module Thredded
 
     # The `current_user` and `signed_in?` methods are prefixed with `thredded_`
     # to avoid conflicts with methods from the parent controller.
+
+    def import_main_app_polymorphic_mappings
+      Thredded::Engine.routes.polymorphic_mappings.merge! Rails.application.routes.polymorphic_mappings
+    end
 
     def thredded_current_user
       send(Thredded.current_user_method) || NullUser.new
